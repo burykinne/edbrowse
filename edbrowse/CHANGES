@@ -1,0 +1,438 @@
+Here are some changes introduced by recent versions of edbrowse.
+
+3.7.7
+Fix a potential security hole, where one website can bleed into another. Worth making a release just for this.
+
+Move or copy files from one directory to another.
+
+imap can fetch the earliest emails, rather than the most recent.
+
+3.7.6
+colors command to show the colors of the web page.
+
+^C for 45 seconds causes a hard interrupt,
+spawn a new interactive thread and kill the current thread,
+kinda drastic but better than being locked out completely.
+
+If a timer runs an async script after browse,
+it loads the js file in the background so you can keep working,
+then when the script is loaded it runs on a future timer.
+Under the control of the jsbg command.
+
+Asynchronous xhr, also controled by jsbg.
+Like the above, it loads the file in background and resumes
+execution on a future timer when the file is loaded.
+
+agentsite in .ebrc to use different agents on different websites.
+
+input.validity object.
+Only valueMissing is implemented.
+
+fu command prints the file's url.
+
+Internationalized help command.
+
+3.7.5.1
+Search function on gopher.
+
+Use threads to download files in the background and in parallel, instead of processes.
+
+Get the windows port working again; it hasn't worked for a while.
+It didn't work because of fork; now that we are threaded it can comne back to life.
+That by itself seems worth releasing a mini-version.
+
+3.7.5:
+ib command to allocate input buffers for textareas.
+
+fll command to set the format line length. fll 80+ to allow a little overflow past 80 columns.
+
+Convert dos \r\n newlines to simple \n.
+This always happened in the dos world, now it happens in unix too.
+Writing the same file back out converts newlines back.
+It can be controlled by the iu command.
+This follows the model of iso8859-1 to and from utf8.
+
+Download javascript files in parallel and in background, experimental. Toggle with jsbg command. Works with openssl but not gnutls.
+
+trace and breakpoints in the deminimized local javascript files.
+
+snapshot() function to build a local copy of a website for debugging.
+
+Don't include the (substantial) deminimization code unless EBDEMIN is set.
+
+3.7.4:
+Install man page and other documentation.
+
+Search for regular expressions with or without wrap.
+
+A uniform and consistent approach to toggle commands:
+foo (toggle), foo+ (enable), foo- (disable).
+
+Show or hide all the messages that are produced by hovering over things,
+or injected by css :before {content:foo}
+
+The g- command, go but don't browse.
+
+The & command backs up through intrapage jumps, just as they ^ command backs up through pages on the stack.
+
+Imap client uses copy and delete if the server does not support the MOVE command.
+Bulk move or delete from one imap folder to another.
+Create, delete, and rename imap folders.
+
+Start using the acid tests to exercise edbrowse.
+
+3.7.3:
+Show heading information h1 through h6.
+
+Specify a different config file on the command line.
+
+Rewrite the css parser and querySelectorAll machinery in C for efficiency and flexibility.
+
+Support for gopher.
+
+A more flexible plugin system that supports arbitrary protocols,
+not just the ones known to edbrowse.
+This can be used to access zip archives and many other structures.
+
+Edbrowse messages in Italian.
+
+-b option causes command line arguments to browse or play.
+
+A better diff algorithm to report which lines have changed.
+
+3.7.2:
+Keep third party open source javascript routines in a separate file third.js.
+Licenses are included in that file.
+
+Deminimize javascript, so line numbers in error messages
+actually convey useful information. The demin command toggles this feature.
+Third party software, in third.js, performs the deminimization.
+
+Disable javascript timers via the timers command, only for debugging.
+
+Compile some js functions once in the master window,
+and reference them from all the other windows.
+This saves time and space.
+
+If an argument is <func then edbrowse runs that function, rather than reading in a file or url.
+
+Sort directory entries by file size or mod time or locale alphabetical (the default).
+
+Run some edbrowse commands in the javascript debugger, particularly e number to switch to another session.
+
+Write our own cssGather and querySelectorAll routines,
+since the jotform routines don't seem to meet our needs.
+
+Convert javascript or css files from utf16 or utf32 into utf8 before processing.
+
+3.7.1:
+Automatically expand a frame when javascript tries to access its objects.
+Otherwise it won't expand unti you expand it explicitly.
+This saves resources; don't fetch and expand a frame unless it is needed.
+
+^c interrupts javascript, if that javascript calls our native methods. It also interrupts http fetch.
+Hit ^c if the browsing is taking too darn long - however - the page may not render properly or completely.
+Don't do this if you are using this page for ecommerce or something vital.
+
+Keep edbrowse in 1 process. Don't fork a javascript process to make all the js calls.
+There are many technical reasons why 1 process is a better design.
+
+The keyword jspool is no longer used in the .ebrc config file.  This
+was needed for Mozilla JS, but it is not needed for Duktape.
+
+Gather keyword value pairs from <style> tags and css files and apply them to the corresponding javascript objects.
+Implement getComputedStyle().
+
+3.7.0:
+Switch from Mozilla js to Duktape js.
+
+Mask password fields on input forms with stars, as other browsers do.
+Issue the ipass command to enter a password without echo.
+
+Curl authorization negotiations enabled or disabled via the can toggle command.
+This is a workaround for problems with NTLM.
+
+Parallel instances of edbrowse don't clobber each other's cookies when they exit and write the common cookie jar.
+See mergeCookies() in cookies.c.
+curl does not become active until you need it.
+
+Environment variable JSGC forces duktape garbage collection after every script.
+Environment variable JS1 keeps edbrowse and js in one process.
+These are for development and testing, and could go away.
+
+Clean up compiler warnings so we can use the -Wall flag.
+
+3.6.3:
+Maintain a cache of http files.
+Provides faster access to websites that are visited often.
+Cache directory and size can be set in the config file, but the defaults are reasonable.
+
+Use a substring of the url to determine a mime type, not just the suffix.
+This is primarily for youtube videos, which can play as a stream, but have no obvious protocol or suffix to key on.
+urlmatch = youtube.com/watch?|youtube.com/embed/
+Currently a substring, may become a regexp later.
+
+g? prints the url for the link instead of going to it. You can look before you leap.
+Also g2? g$? etc.
+
+i* on a textarea <buffer 7> goes to that editing session, in this case equivalent to e7.
+This is convenient for scripting, since you don't know ahead of time which buffer will be allocated for this purpose.
+
+The M (move) command does not require a destination session; edbrowse finds an empty session for you.
+
+Represent multiple frames in one edbrowse window. Each has its own javascript world.
+At this point the worlds do not interact.
+You can expand and contract frames by the exp and ctr commands.
+
+3.6.2:
+Read and convert utf16 and utf32 as per the byte order mark.
+convert such files to utf8 or iso8859-1 as per the console setting,
+though the latter is deprecated.
+Convert back only if writing back out to the same file.
+
+Enter high unicodes by the string ~u....;
+where the dots are hex digits and the semi is optional.
+
+New "buffer list" command (bflist)  to get a list of buffers and filenames.
+
+Read the attachment filename from the http content-disposition header and set the current filename accordingly.
+The url could be replaced with foobar.zip, but that's what the web designer wanted.
+
+If a file has a recognized suffix, with a stream plugin,
+then typing g on a link within that file invokes the same plugin.
+This is primarily used for .pls files, which are playlists,
+and each URL therein is intended for a music player.
+Other browsers seem to work this way.
+
+3.6.1:
+Merge edbrowse and edbrowse-js back into one executable image.
+More convenient for distribution.
+The --mode argument determines the action of the process.
+Example edbrowse --mode js to run as the js engine.
+
+Simple implementation of xhr under javascript, synchronous only.
+
+Don't encode urls that have already been encoded via <A href=url>.
+The second encoding is mostly harmless, except for + becoming %2b.
+
+Turn on or off the progress dots during an http or ftp download,
+or receive progress counts by megabyte.
+
+Create the edbrowse temp dir at the outset, and user directories
+beneath this directory, mod 700, for added security in a multiuser system.
+Temp files for plugins are created beneath the user directories.
+
+Reload the config file on command. No need to exit and restart.
+
+~0 in an edbrowse function is the whole line, even if more than 9 arguments.
+
+db>filename to redirect debugging output to a file.
+
+3.6.0.1:
+Bug fixes.
+Most importantly, fixed a buffer overflow in sprintf.
+
+3.6.0:
+Edbrowse is an imap client. Scan and search through folders,
+delete move or download emails, pull down attachments.
+
+Use the tidy5 library to parse html and create a tree of nodes.
+Render the text buffer based on this tree of nodes,
+rather than the original html text.
+Rerender the tree after it has been changed by javascript,
+or via the rr command,
+and report any differences, i.e. what has javascript changed?
+
+Implement javascript timers and intervals.
+These run asynchronously in the background.
+
+Various ls commands in directory mode print the size,
+mod time, and permissions of the file on the current line.
+Set ls=lt to list the length and time of all the files in subsequent
+directory scans. See documentation for more.
+
+Port edbrowse to windows, with small modifications.
+
+Set up cmake scripts so that cmake can be used to build edbrowse
+on windows or on linux.
+Traditional make is still available from the src directory.
+
+Use cmake to build edbrowse under MacPorts, thus available under OSX.
+
+Enhance the DOM sufficient to compile a jQuery object <= 1.9.1.
+This is the first step along the path to full jQuery support.
+
+Add an interactive javascript / DOM debugger.
+Type jdb to enter this debugging mode, and period to exit.
+
+Create a default .ebrc file if none is found.
+This is just a template, the user is encouraged to personalize the file.
+The default .ebrc file is in the user's language for supported languages.
+
+Move all the language files, (ebrc files and message strings),
+to per-language files in the lang directory.
+perl programs map these into strings in the C source.
+
+Support http only cookies.
+
+3.5.4.2:
+Limited and preliminary imap access. Envelopes only.
+Messages can be moved or deleted, but not read or downloaded.
+
+We no longer downgrade to SSL v3 on failure to use newer versions of SSL.
+
+Edbrowse now warns if you try to quit with a modified buffer that has
+no associated filename.  This is consistent with ed and most other editors.
+
+3.5.4.1:
+Fix a couple of bugs related to downloading files from the internet.
+
+3.5.4:
+Messages in German, thanks to Sebastian Humenda.
+Autoplay of audio files found on websites, using content-type,
+and autoplay of audio files from directory mode.
+Use a plugin to convert pdf to html, or any other conversion you wish.
+Autoconvert such files as you encounter them via the g command.
+directory listing sorted by locale, like/bin/ls.
+Automatically include references when replying to an email, re or rea commands,
+so it threads properly.
+
+3.5.3:
+Write a separate process, edbrowse-js, to handle all the javascript objects.
+This process and only this process interacts with the js library,
+be it mozilla or v8 or whatever.
+Edbrowse implements the document object model at a higher level,
+and communicates with edbrowse-js for the corresponding javascript objects.
+
+Allow users to download large binary files in the background, and straight to disk.
+Useful for computers with limited memory but plenty of disk.
+
+3.5.2:
+The blacklist feature is now gone.
+It wasn't really used,
+as there are more effective ways to fight spam these days.
+Also, there was the possibility that reading an empty blacklist file could
+lead to a crash.
+
+This release contains a few additional minor bugfixes, the most significant
+of which involved the rendering preformatted sections when browsing html.
+
+3.5.1:
+Mozilla javascript version 2.4 and above supports only a C++ interface,
+so if we want to keep using moz js, then we must follow along.
+Edbrowse 3.5.1 converts the javascript layer from C to C++.
+These are the files jsdom.cpp, jsloc.cpp, and html.cpp (use to be .c).
+Other files may convert to C++ in the future.
+Use the curl library to send and receive mail.
+This replaces home-grown pop3 and smtp software.
+
+3.4.10:
+Polish translations, courtesy of Wojciech Gac.
+
+3.4.9:
+Various bug fixes.
+
+3.4.8:
+* Edbrowse now requires version 1.8.5 (or higher) of Spidermonkey.
+* When completing filenames with readline, a trailing space is no longer added.
+* Updated French translation of the User's Guide, thanks to Erwin Bliesenick.
+* Edbrowse now supports localized HTTP responses; see the User's Guide.
+* In the Edbrowse scripting language, function names are now
+  case-insensitive.
+
+3.4.7:
+memcpy and strcpy are no longer called on overlapping regions.
+Files with unknown length, such as those under /proc, are now readable.
+Miscellaneous fixes.
+
+3.4.6:
+Fix file corruption bug for large files with more than a million lines.
+
+3.4.5:
+Dot stuffing in emails.
+Support for readline() on input.
+Support for proxies through .ebrc or the environment.
+
+3.4.4:
+Fixed a cookie bug; tail matching never took place.
+Thus a cookie would never propagate to a subdomain.  Bad news.
+
+3.4.3:
+Hotmail smtp protocol.    outport = ^587
+Minor tweaks for compilation under OS X.
+
+3.4.1:
+Access to databases through odbc.
+Modify rows in a table by using the edit commands you already know.
+Be careful; delete means delete!
+
+3.3.4:
+Convert between iso8859-1 and utf8 on the fly, according to the contents
+of the file and the value of $LANG.
+This takes place automatically as files are read and written;
+the user shouldn't notice a thing.
+
+3.3.3:
+New reply feature, maintains the thread for discussion lists.
+Move docs to a doc directory, and source to an src directory.
+Fix some utf8 bugs.
+
+3.3.2:
+Supports reading of pdf files by calling the utility pdftohtml.
+http://rpmfind.net/linux/RPM/suse/updates/10.0/i386/rpm/i586/pdftohtml-0.36-130.9.i586.html
+Also brings in email over ssl.
+Secure smtp implies auth login;
+no other authentication method is implemented at this time.
+
+3.3.1:
+The error and output messages of edbrowse have been internationalized.
+Set LANG= to specify the language.
+At present, LANG=en and LANG=fr are supported.  (English and French)
+
+3.2.1:
+This version introduces sql database access,
+through Informix esql (tested) and odbc (not tested).
+Access a table in the database just as you would access a file.
+Inserts, updates, and deletes are applied to the database,
+as they take place in your local buffer.
+It's almost wysiwyg.
+And it's dangerous.
+If you delete a row, there is no undo, so be careful.
+
+3.1.3:
+Edbrowse can now fetch and execute a local javascript file,
+as in  <script src=LocalFileName.js>
+from within a local html file that you are browsing.
+This is primarily used by people who build and debug websites, like me.
+It is also handy if you have downloaded your own private copy
+of a website, and it uses javascript.
+
+3.1.2:
+Files (other than text or html) are processed according
+to their mime type, which is fancy internet jargon for their file extension.
+It's not rocket science - file.mp3 is sent to an mp3 player,
+file.wav is sent to a wave player, and so on.
+See the docs for more details.
+
+3.1.1:
+Version 2 used my own, home-grown javascript engine.
+This version, version 3 and beyond, uses an open source js engine,
+known as Spider Monkey Javascript, or smjs.
+Needless to say, theirs is better than mine.
+It's something I should not try to reinvent.
+As you might imagine,
+many websites will run properly on version 3, but not on version 2.
+This is a substantial change to the program,
+hence the jump in major version number.
+
+2.2.10:
+This is the latest version with my home-grown javascript engine.
+If you don't have access to smjs, or you just want to get it up and running
+quickly, to see if you like it, you can use 2.2.10.
+
+1.5.17:
+This is the latest perl version.
+It has no javascript support, nor does it handle edbrowse scripts,
+but it is completely portable, and runs on Windows, Mac, etc.
+This is the easiest way to take edbrowse out for a spin, to see if you like it.
+

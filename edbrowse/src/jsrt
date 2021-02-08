@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html>
+<!-- browse length 630, 643 with hover -->
+<head id=boom>
+<meta content=Snoopy>
+<title>Edbrowse js regression test</title>
+<base href="http://yyy.zzz.com">
+<!-- tidy5 says this is not a valid tag any more -->
+<bgsound src=whatever.mid>
+<style>
+body { background: white; color: black; }
+body:hover { fly:windshield }
+.nut {color: blue; white-space: snork" \""; }
+.nut:after {waste:crap; content:zip; }
+body p.inject:before { display:round }
+p.inject:before { content:My }
+</style>
+<!-- this isn't an internet load of css so onload doesn't run -->
+<link type=foobar onload="onlv+=2">
+</head>
+
+<body onload=bodyLoad() onunload=bodyUnload()
+style="font-size: 1.0em">
+<script type=text/javascript language=JavaScript>
+/* This is the javascript regression test for edbrowse.
+It attempts to exercise all the implemented features of javascript,
+which is, by the way, not all the features of javascript by any means.
+Run this program after every software change,
+and certainly before each release.
+If a test fails, we give you the test number and abort.
+Fix the bug and rerun, until all tests pass.
+Warning: these tests are in no particular order, except if you rearrange
+them they will fail, because some depend on variables that were
+set by others.  Yeah, it's ugly. */
+
+var udef = "undefined";
+function fail(n) { alert("failed "+n); }
+
+var popwin = new Window("http://www.moreAndMoreCrap.com/BuyNow.html", "obnoxious_ad", "width=72");
+
+var memhog = new Array();
+
+var n, j;
+
+function memfill()
+{
+// allow a user specifyable amount of objects to create
+// use the document.getElementById and element interface here
+var amount = parseInt(document.getElementById("fill_amount").value, 10);
+if (amount <= 0)
+{
+alert("You must provide a positive integer when specifying the number of objects to create");
+return;
+}
+for (n=0; n < amount; ++n)
+{
+memhog[n] = {};
+}
+alert("Array successfully created with " + amount + " objects");
+}
+
+function memshow()
+{
+alert("memhog contains " + memhog.length + " elements");
+}
+// for loop with break and continue
+for(n=0, j=1; j<=20; ++j) {
+n += j*j;
+if(j%7 == 0) continue;
+--n;
+if(j == 18) break;
+}
+if(n != 2093) fail(1);
+
+// while loop with break and continue
+j = 0;
+while(j < 20) {
+++j;
+n += j*j;
+if(j >= 3 && j <= 5) continue;
+++n;
+if(j == 7) break;
+}
+if(n != 2237) fail(2);
+
+// else ambiguity
+if(j == 7)
+if(n == 29) n = 282; else n = 321;
+if(n-1 != 320) fail(3);
+
+// switch, default
+switch(n) {
+case j: j=1; break;
+case 19: j=2; break;
+case 321: j=3; break;
+} /* switch */
+if(j != 3) fail(4);
+switch(n) {
+case j: j=1; break;
+case 19: j=2; break;
+case 321: j=3;
+case 11: j = 4;
+} /* switch */
+if(j != 4) fail(5);
+switch(n) {
+case j: j=1; break;
+case 19: j=2; break;
+default: j=3; break;
+case 777: j = 7; break;
+} /* switch */
+if(j != 3) fail(6);
+
+var bt = true; // a boolean value
+var f = 6.25; // a perfectly representable floating value
+if("cat" + 15 + "dog" + f + bt != "cat15dog6.25true") fail(7);
+if(Math.sqrt(f) != 2.5) fail(8);
+
+// silly braces and semis, and optional semis
+{{
+j = 7
+j += 2
+;;;;
+j *= 3
+}}
+if(j != 27) fail(9);
+
+if(Math.pow(11,4) != 14641) fail(10);
+
+var alpha = "abc\144\x65fghijklmnopqrstuvwxyz\r\n";
+if(alpha.substring(2,7) != "cdefg") fail(11);
+if(alpha.length != 28) fail(12);
+if(alpha.charAt(10) != 'k') fail(13);
+if(alpha.indexOf("rrr") != -1) fail(15);
+if(alpha.lastIndexOf("quack") != -1) fail(16);
+if(alpha.indexOf("def") != 3) fail(17);
+alpha += "ubcxyz";
+if(alpha.lastIndexOf("bc") != 29) fail(18);
+
+var a = alpha.split('b');
+if(a.length != 3) fail(20);
+if(a[0] != 'a') fail(21);
+if(a[2] != "cxyz") fail(22);
+if(a.join("--") != "a--cdefghijklmnopqrstuvwxyz\r\nu--cxyz") fail(23);
+
+a = ["red", "orange", "yellow", "green", "blue", "indigo", "violet"];
+if(a.length != 7) fail(30);
+a[3] = 99;
+a[4] = [9, 8, 7];
+if(a[3] + a[4][0] != 108) fail(32);
+a.length = 6; // lop off violet
+if(typeof(a[8]) != udef || a.length != 6) fail(33);
+if(a[5]+a[0] != "indigored") fail(34);
+
+//escape unescape
+alpha = "This 3rd-line is ©me!";
+if(unescape(escape(alpha)) != alpha) fail(36);
+
+// function with a static variable
+function mult$sv(x,y)
+{
+++mult$sv.counter;
+return mult$sv.counter*x*y;
+}
+mult$sv.counter = 0;
+if(mult$sv(17,3) != 51) fail(40);
+if(mult$sv(19,5) != 190) fail(41);
+if(mult$sv.counter != 2) fail(42);
+
+// A recursive function with func.x references
+function factorial(n)
+{
+if(n <= 1) return 1;
+var y = 7+n;
+return n*factorial(n-1);
+}
+if(factorial(6) != 720) fail(44);
+var bang = factorial;
+if(bang(8) != 40320) fail(45);
+if(bang != factorial) fail(46);
+if(typeof factorial.n != udef || typeof factorial.y != udef) fail(47);
+
+// vararg function
+var domax = function() {
+if(arguments.length != 7) fail(50);
+var max = -Number.MAX_VALUE;
+for(var j=0; j<arguments.length; ++j) {
+var k = arguments[j];
+if(k > max) max = k;
+}
+return max;
+}
+if(domax(7, 2.5, 12, -3, -955.5, 76, 19) != 76) fail(51);
+
+/*********************************************************************
+function fc1(x) {
+ function g(z) { return z*z*z; }
+return x + fc2(7);
+}
+function fc2(y) {
+if(caller != fc1) fail(52);
+return y*y + caller.g(3);
+}
+if(fc1(8) != 84) fail(53);
+if(fc1.g(5) != 125) fail(54);
+*********************************************************************/
+
+var mysqrt = Math.sqrt;
+if(mysqrt(1089) != 33) fail(55);
+
+// bits
+if((10&7) != 2) fail(60);
+if((10|7) != 15) fail(61);
+if((10^7) != 13) fail(62);
+if(~10 != -11) fail(63);
+if(10<<2 != 40) fail(64);
+if(10>>2 != 2) fail(66);
+if(-15 >> 2 != -4) fail(67);
+if(-1 >>> 16 != 65535) fail(68);
+
+// a little bit of oo stuff
+// Let's make methods both ways.
+function Circle()
+{
+this.r = 1;
+if(arguments.length == 1) this.r = arguments[0];
+this.c = function() { return this.r*Math.PI*2; }
+this.a = CircleArea;
+}
+function CircleArea() { return this.r*this.r*Math.PI; }
+var c1 = new Circle();
+var c2 = new Circle(23);
+// also test the with construct
+with(Math) {
+if(c1.r != 1 || c2.r != 23) fail(70);
+c2.r = 10;
+if(c2.a() != 100*PI) fail(72);
+}
+n = "";
+for(j in c2) n += j;
+if(n != "rca") fail(73);
+
+// internal sort
+a = new Array("red", "orange", "yellow", "green", "blue", "indigo", "violet");
+function acmp(x,y) { return x > y ? 1 : -1; }
+a.sort(acmp);
+if(a.join(':') != "blue:green:indigo:orange:red:violet:yellow") fail(74);
+if(a.length != 7) fail(75);
+if(a[5] != "violet") fail(76);
+
+var oo = new Object;
+if(typeof oo != "object") fail(77);
+oo.p = 61, oo.q = 67;
+n = "";
+for(j in oo) n += j+oo[j];
+if(n != "p61q67") fail(78);
+if(c2.constructor != Circle || oo.constructor != Object) fail(79);
+
+// the date object
+var d = new Date(2003,11,25,17,55,9);
+if(d.getMonth() != 11 || d.getDate() != 25) fail(81);
+if(d.getHours() != 17 || d.getMinutes() != 55 || d.getSeconds() != 9) fail(82);
+if(d.constructor != Date || a.constructor != Array) fail(84);
+
+// default this
+function topthis() { this.topprop = 887; }
+topthis();
+if(topprop != 887) fail(88);
+
+// A couple functions, and the first couple lines of the input form.
+function calc(thisform)
+    {
+var l = thisform.body.value.length;
+thisform.result.value = l;
+if (l > 2000) {
+alert("You cant go over Limit of 2000 Characters!");
+}
+    }
+
+function newwords() {
+var b = document.forms[0].body;
+b.innerText = "Why don't you write me I'm out in the jungle I'm hungry to hear you.\nSend me a card I am waiting so hard to be near you.\n";
+}
+
+</script>
+
+<noscript>
+<OL>
+<LI>This is a regression test without javascript.
+</OL>
+</noscript>
+
+<H1 onload="onlv+=16"> jsrt </H1>
+
+<!-- this doesn't work any more, maybe a different ftp site that always works.
+ftp test
+<A href=ftp://rpmfind.net/linux/fedora/linux/releases/21/Everything/i386/os/Packages/y>
+y directory</A>
+<A href=ftp://rpmfind.net/linux/fedora/linux/releases/21/Everything/i386/os/Packages/y/yecht-0.0.2-11.fc21.noarch.rpm>
+yecht package</A>
+-->
+
+<iframe src=http://www.edbrowse.org/jsfrm.html
+onload="alert&nbsp;('expanding the frame dude')">
+you shouldn't see this stuff
+</iframe>
+<A onclick="alert('first node ' + frames[0].contentDocument.body.firstChild.nodeName)">first node</a>
+
+<form method=POST name=questionnaire
+class=betty-boop
+action=http://localhost:1500/origact
+onsubmit='return submitFunction(this)'
+onreset='return resetFunction()'
+onload=formLoad(this.name) onunload=formUnload(this.name)>
+
+<!-- we might want to test json some day. -->
+    <script type='application/json'>
+{"foo":736,"bar":737}
+</script>
+
+<script language=JavaScript type=text/javascript>
+function catdog(item) { alert('fluffy'); if(item.checked&&document.forms[0].dog.checked) alert('chased by dog'); }
+
+// Let javascript generate another javascript tag
+document.writeln("<script language=JavaScript>document.writeln('Nested Script ');<" + "/script>");
+</script>
+
+<P class=inject>
+subject: <input type='hidden' name='who' value='eklhad'>
+<input type='hidden' name='password' value='secret'>
+<input type='text' name='subject' size='50' maxlength='80' required>
+<br>State and zip:
+<select name=state onchange=newSelect(this)>
+<option selected value=-->
+Please choose one
+<option value=AL>
+Alabama
+<option value=AK>
+Alaska
+<option value=AS>
+American Samoa
+<option value=AZ>
+Arizona
+<option value=AR>
+Arkansas
+<option value=CA>
+California
+<option value=CO>
+Colorado
+<option value=CT>
+Connecticut
+<option value=DE>
+Delaware
+<option value=DC>
+District Of Columbia
+<option value=FM>
+Federated States Of Micronesia
+<option value=FL>
+Florida
+<option value=GA>
+Georgia
+<option value=GU>
+Guam
+<option value=HI>
+Hawaii
+<option value=ID>
+Idaho
+<option value=IL>
+Illinois
+<option value=IN>
+Indiana
+<option value=IA>
+Iowa
+<option value=KS>
+Kansas
+<option value=KY>
+Kentucky
+<option value=LA>
+Louisiana
+<option value=ME>
+Maine
+<option value=MH>
+Marshall Islands
+<option value=MD>
+Maryland
+<option value=MA>
+Massachusetts
+<option value=MI>
+Michigan
+<option value=MN>
+Minnesota
+<option value=MS>
+Mississippi
+<option value=MO>
+Missouri
+<option value=MT>
+Montana
+<option value=NE>
+Nebraska
+<option value=NV>
+Nevada
+<option value=NH>
+New Hampshire
+<option value=NJ>
+New Jersey
+<option value=NM>
+New Mexico
+<option value=NY>
+New York
+<option value=NC>
+North Carolina
+<option value=ND>
+North Dakota
+<option value=MP>
+Northern Mariana Islands
+<option value=OH>
+Ohio
+<option value=OK>
+Oklahoma
+<option value=OR>
+Oregon
+<option value=PW>
+Palau
+<option value=PA>
+Pennsylvania
+<option value=PR>
+Puerto Rico
+<option value=RI>
+Rhode Island
+<option value=SC>
+South Carolina
+<option value=SD>
+South Dakota
+<option value=TN>
+Tennessee
+<option value=TX>
+Texas
+<option value=UT>
+Utah
+<option value=VT>
+Vermont
+<option value=VI>
+Virgin Islands
+<option value=VA>
+Virginia
+<option value=WA>
+Washington
+<option value=WV>
+West Virginia
+<option value=WI>
+&#xa0;Wisconsin
+<option value=WY>
+Wyoming
+<option value=BH>
+90210
+</select>
+<!-- this generates an error, but not sure why.
+http://www.w3schools.com/html/html_form_input_types.asp -->
+<input type=number maxlength=5 name="zip code" readonly value="&#56;8888">
+<span id=almond class="nut rose"></span>
+<table class=filbert><tr><td></td></tr><tr id=pecan><td></td></tr></table>
+Colors will change with the state, A through M or N through Z.
+<br>My favorite colors are:
+<select name=colors multiple>
+<option value=r> red
+<option value=o> orange
+<option value=y> yellow
+<option selected value=g> green
+<option selected value=w> white
+</select>
+<br>Salary range:
+poverty
+<input type=radio name=money value=0>
+gettin-by
+<input type=radio name=money value=1 checked>
+comfortable
+<input type=radio name=money value=2>
+rich
+<input type=radio name=money value=3>
+<br>Pets:
+dog <input type=checkbox name=dog id=hound checked onclick="alert('rover')">
+cat <input type=checkbox name=cat onclick="catdog(this)" value=meow>
+bird <input type=checkbox id=bird>
+rabbit <input type=checkbox name=rabbit>
+<br>
+Amount of objects to create <input type="text" id="fill_amount" name="fill_amount" value="2000000" />
+<input type=button name=hog value="memory hog" onclick=memfill()>
+<input type=button name=mclear value="memory clear" onclick="memhog.length = 0">
+<br>
+<button onclick="memshow()" name="mshow">show memory length</button>
+<input type=button name=goodbye value="jump away"
+onclick="alert('page is being replaced'); window.location.href='http://www.cartercenter.org';">
+<br>Message Body:
+<textarea name='body' rows='6' cols='50'>
+Type your brilliant thoughts here.
+We'll get back to you if we like what you have to say.
+</textarea>
+<div id=album>
+</div
+>
+<DIV id=sphere>Surface area is 4&#960;r<span class=sup>2</span>.</DIV>
+<input type=button name=b value=calc onclick=calc(this.form)>
+<input type='text' readonly name='result' size='4'>
+<input type=button name=rw value=rewrite onclick=newwords()>
+<input type='reset' value='Reset' name='b0'>
+<input type='submit' value='Send Message' name='b1'
+onclick="alert('rock and roll')">
+</form>
+
+<DIV id=tag_with_data_attribute data-dog-food=abc></DIV>
+
+<script type=text/javascript language=JavaScript>
+// I'll push the button for you
+document.forms[0].b.onclick();
+if(document.forms[0].result.value != 90) fail(85);
+if(document.forms[0].who.value != "eklhad") fail(86);
+if(document.forms[0].elements[1].value != "secret") fail(87);
+
+document.onchange = function(e) { if(e.target == document.forms[0].cat) alert("dude you clicked on cat");}
+
+// prototype objects, use the Circle model
+Circle.prototype.q = 97;
+Circle.prototype.m = function(z) { return z*z*z; };
+c2.q = 84; // hide 97
+if(c1.q != 97) fail(90);
+if(c2.q != 84) fail(91);
+if(c1["m"](9) != 729) fail(92);
+with(c1) {
+if(q != 97) fail(93);
+if(m(7) != 343) fail(94);
+}
+
+// prototype an implicite class
+String.prototype.xy = function() {
+return this.replace(/x/g, 'y');
+}
+n = "sixty";
+if(n.xy() != "siyty") fail(95);
+if("fix my fox".xy() != "fiy my foy") fail(96);
+Array.prototype.firstLast = function() {
+var temp = this[0];
+var l = this.length-1;
+this[0] = this[l];
+this[l] = temp;
+};
+Object.defineProperty(Array.prototype, "firstLast", {configurable: false,  enumerable: false, writable: false});
+a = [17,21,25];
+a.firstLast();
+if(a.join('zz') != "25zz21zz17") fail(97);
+
+// check some of the element tags
+with(document.forms[0]) {
+if(!(dog.checked && dog.defaultChecked)) fail(100);
+if(cat.checked || cat.defaultChecked) fail(101);
+if(dog.type != "checkbox" || money.type != "radio" || money.length != 4) fail(102);
+if(who.type != "hidden" || subject.type != "text") fail(103);
+if(b0.type != "reset" || b1.type != "submit") fail(104);
+if(body.type != "textarea" || b.type != "button") fail(105);
+if(state.type != "select-one" || colors.type != "select-multiple") fail(106);
+if(who.defaultValue != "eklhad") fail(107);
+if(body.value.substring(10,19) != "brilliant") fail(108);
+// focus and blur are ignored
+dog.focus();
+cat.blur();
+focus();
+blur();
+}
+
+// for(var i in document.idMaster) alert(i);
+if(document.getElementById("hound").name != "dog") fail(110);
+if(document.getElementById("almond") != document.spans[0]) fail(111);
+// I'm not sure of any of this table row stuff
+if(document.getElementById("pecan") != document.tables[0].rows[1]) fail(112);
+if(document.getElementById("pecan").parentNode.parentNode.class != "filbert") fail(115);
+if(document.all.tags("FORM")[0] != document.forms[0]) fail(113);
+if(document.all.tags("span").length != 2) fail(114);
+
+n = 0;
+a = [29,31,37];
+for(j in a) {
+if(j.length > 1) continue;
+n += (j*1+2)*a[j];
+}
+if(n != 299) fail(119);
+
+/* inline object */
+var ilo = {a:document.forms[0], b:9+5*3};
+if(typeof ilo.a != "object") fail(120);
+if(ilo.b != 24) fail(121);
+if(ilo.a.who.value != "eklhad") fail(122);
+
+/* the URL class, most of the setters are in startwindow.js */
+/* malformed url, not sure what to do here */
+uo = new URL("local-file"); // url object
+if(uo.href != "local-file") fail(130);
+if(uo.host != "local-file" || uo.pathname != "/") fail(131);
+new_path = "https://this.that.com:777/dir/ectory?search=k&l=english#middle";
+uo.href = new_path;
+if(uo != new_path) fail(132);
+if(uo.protocol != "https:" ||
+uo.hostname != "this.that.com" ||
+uo.host != "this.that.com:777" ||
+uo.port != 777 ||
+uo.pathname != "/dir/ectory" ||
+uo.search != "?search=k&l=english" ||
+uo.hash != "#middle") fail(133);
+uo.port = 888;
+new_path = new_path.replace(/777/, "888");
+if(uo != new_path) fail(134);
+uo.protocol = "ftp:";
+new_path = new_path.replace(/https/, "ftp");
+if(uo != new_path) fail(135);
+uo.pathname = "otherplace";
+new_path = new_path.replace(/dir.ectory/, "otherplace");
+if(uo != new_path) fail(136);
+uo.host = "otherplace.org:221";
+new_path = new_path.replace(/this.*888/, "otherplace.org:221");
+if(uo != new_path) fail(137);
+uo.hash = "#end";
+new_path = new_path.replace(/middle/, "end");
+if(uo != new_path) fail(138);
+
+if(document.readyState != "loading") fail(140);
+if(!document.title.match(/regression/)) fail(141);
+if(document.head.id != "boom") fail(142);
+if(document.getElementsByTagName("head")[0].id != "boom") fail(143);
+
+function submitFunction(me) {
+if(document.forms[0] != me) fail(123);
+if(me.subject.validity.valueMissing) { alert("subject is required"); return false; }
+var where = prompt("Enter m for mail, w for web, a to autosubmit, x to abort.", "x");
+me.action =
+(where == 'm' ? "mailto:eklhad@gmail.com" : "http://localhost:1200/foobar");
+if(where == 'a') me.submit();
+if(where != 'm' && where != 'w') return false;
+return 1;
+}
+
+function resetFunction() {
+return confirm("All that hard work, are you sure you want to reset?");
+}
+
+function newSelect(e) {
+alert(e.name + " in " + e.form.name + " has become " +
+e.options[e.selectedIndex].value + " or " + e.value);
+var olist = document.forms.questionnaire.colors.options;
+olist.length = 0;
+var oo; // option object
+if(e.value.match(/^[!-M]/)) {
+oo = new Option("red", "r");
+olist[0] = oo;
+oo = new Option("orange", "o");
+olist[1] = oo;
+oo = new Option("yellow", "y");
+olist[2] = oo;
+oo = new Option("green", "g");
+oo.selected = true;
+olist[3] = oo;
+oo = new Option("white", "w");
+oo.selected = true;
+olist[4] = oo;
+} else {
+oo = new Option("pink", "p");
+olist[0] = oo;
+oo = new Option("tan", "t");
+olist[1] = oo;
+oo = new Option("silver", "s");
+oo.selected = true;
+olist[2] = oo;
+oo = new Option("copper", "c");
+oo.selected = true;
+olist[3] = oo;
+}
+}
+
+function bodyLoad() {
+alert("body loading");
+onlv++;
+var e = document.createEvent();
+e.type = "snork";
+document.dispatchEvent(e);
+}
+function bodyUnload() {
+if(confirm("Go to the edbrowse home page?"))
+new Window("http://edbrowse.org");
+else alert("ok, never mind");
+}
+function formLoad(name) {
+onlv += 4;
+var t = document.createTextNode("Created Text");
+document.body.appendChild(t);
+var s = document.createElement("script");
+s.text = "lastScript()";
+document.body.appendChild(s);
+}
+function formUnload(name) { alert("form " + name + " unloading"); }
+function docLoad(e) { onlv += 8; if(e.target != document) faile(179); }
+document.addEventListener("snork", docLoad, true);
+var onlv = 64;
+
+/* last script to run automatically; loaded by the form.onload function */
+function lastScript() {
+document.writeln(" Last Script");
+if(onlv != 93) fail(1000);
+}
+
+setTimeout("joker()", 30000);
+function joker() {
+alert("30 seconds have passed!");
+var j = document.createTextNode(" And the timer text");
+document.body.appendChild(j);
+}
+
+// test the innerHTML feature
+if(!document.getElementById("sphere").innerHTML.match(/^Surface area/))
+fail(145);
+album = document.getElementById("album");
+album.innerHTML =
+"Why don't we do it <A title=White href=http://en.wikipedia.org/wiki/White_album style='color: red ;illegal;legit3:okay;'>in the road</A>?";
+/* all the js objects associated with this html should be here */
+var aa = album.getElementsByTagName("a")[0];
+if(!aa.href.match(/wikipedia.org/))
+fail(152);
+if(aa.style.color != "red")
+fail(153);
+</script  	
+>
+
+<!-- this script has a url but it's data, and doesn't load, so onload does not run -->
+<script type="text/javascript" src="data:text/javascript,var data_uri1_test %3d %22set%22%3b" onload="onlv+=2"></script>
+<script type="text/javascript" src="data:text/javascript;base64,dmFyIGRhdGFfdXJpMl90ZXN0ID0gInNldCI7Cg=="></script>
+
+<script type=text/javascript language=JavaScript>
+if(data_uri1_test != "set")
+fail(146);
+if(data_uri2_test != "set")
+fail(147);
+</script>
+
+<script type=text/javascript language=JavaScript>
+/*
+if(data_uri1_test != "set")
+fail(148);
+if(data_uri2_test != "set")
+fail(149);
+*/
+
+/* I wanted to test the initial cookie string as blank,
+ * but if you unbrowse and then browse, this test will fail.
+if(document.cookie != "")
+fail(150);
+*/
+
+insertBefore_returnvalue();
+
+function insertBefore_returnvalue()
+{
+// insertBefore return value test
+var ibrv = document.createTextNode("this will be returned from iB");
+// If you echoed document.body.childNodes[0] before the change,
+// it is something other than our new text node
+var firstchild_before = document.body.childNodes[0];
+var firstchild_after = document.body.insertBefore(ibrv,firstchild_before);
+if (firstchild_after.data == "this will be returned from iB")
+{
+// passed the test
+// clean up - remove the node created for the test
+document.body.removeChild(ibrv);
+} else {
+// clean up now, because fail is going to abort
+document.body.removeChild(ibrv);
+fail(154);
+}
+}
+
+
+test_cloneNode();
+function test_cloneNode()
+{
+var x1  = document.createElement("div");
+var x2  = document.createElement("div");
+var x3  = document.createElement("div");
+var x4  = document.createElement("div");
+x4.innerHTML = "<A HREF='http://water.com' style='color:red;float:left'></A>";
+x3.appendChild(x4);
+x2.appendChild(x3);
+x1.appendChild(x2);
+x4.setAttribute('verify','should exist on clone when called with deep true');
+var x5 = x1.cloneNode(true);
+var test_object = x5.firstChild.firstChild.firstChild;
+var string_deep_true = test_object.getAttribute('verify');
+var test_anchor = test_object.firstChild;
+var x6 = x1.cloneNode(false);
+if (x6.hasChildNodes())
+fail(155);
+if (string_deep_true != "should exist on clone when called with deep true")
+fail(156);
+if (test_anchor.style.color != "red")
+fail(157);
+if (test_anchor.href.host != "water.com")
+fail(158);
+}
+
+test_removeListener();
+function test_removeListener()
+{
+var x1 = document.createElement("a");
+var x1click = function(){ alert('ok') };
+x1.addEventListener("click",x1click,0);
+if(typeof x1.onclick$$array[0] != "function")
+fail(159);
+x1.removeEventListener("click",x1click);
+if(x1.onclick$$array.length)
+fail(160);
+}
+
+// This comes after the original onsubmit function
+document.forms[0].addEventListener("submit", function(e) { alert("submit phase "+e.eventPhase);});
+
+// test_xhr() succeeds even if allowXHR is off, which is weird.
+// Not that I want it to fail if allowXHR is off either. IDK
+// and not sure I want to run this internet test every time. Maybe.
+// test_xhr()
+function test_xhr()
+{
+var xhr = new XMLHttpRequest;
+xhr.url = "http://edbrowse.org";
+xhr.method = "GET";
+xhr.send("", 0);
+var rt = xhr.responseText.split("edbrowse").length;
+if (rt > 0)
+{
+// as the responseText contains one or more instances
+// of 'edbrowse', barring some kind of confounding reason,
+// this means that a real GET fired and retrieved the page
+} else {
+fail(161);
+}
+}
+
+test_siblings();
+function test_siblings()
+{
+var x1 = document.createElement("div");
+var x2 = document.createElement("span");
+var x3 = document.createElement("table");
+var x4 = document.createElement("script");
+var x5 = document.createElement("element");
+x5.name = "frog";
+x5.value = 123;
+
+x1.appendChild(x2);
+x1.appendChild(x3);
+x1.appendChild(x4);
+x1.appendChild(x5);
+
+var child1 = x1.childNodes[0];
+// in the wild it is common to see these sibling calls daisychained
+var testchild = child1.nextSibling.nextSibling.previousSibling.nextSibling.nextSibling;
+if (testchild.value == 123)
+{
+// pass
+} else {
+fail(162);
+}
+}
+
+if(document.metas[1].content != "Snoopy")
+fail(163);
+// add tests for getAttribute etc, once Meta is actually a class in startwindow.js.
+
+if(document.defaultView.getComputedStyle(document.getElementById("almond"),'').whiteSpace != 'snork "')
+fail(164);
+
+if(document.body.style.color != "black") fail(165);
+if(document.body.style.fontSize != "1.0em") fail(169);
+if(querySelector(".filbert #pecan").nodeName != "TR")
+fail(170);
+if(querySelector("text + #bird").nodeName != "INPUT")
+fail(171);
+document.body.style.cssText = "ele-fitz:ger' a'ld";
+if(document.body.style.eleFitz != "ger ald")
+fail(172);
+if(document.getElementsByClassName("inject")[0].firstChild.data != "My ")
+fail(173);
+if(document.spans[0].lastChild.data != " zip")
+fail(174);
+
+// Create a frame and access something from its window.
+(function() {
+var fn = document.createElement("iframe");
+if(fn.contentWindow.height !== 768) fail(167);
+if(fn.contentDocument.style.bgcolor !== "white") fail(168);
+// This function produces a memory leak; the window goes away
+// when this function goes away, but edbrowse retains it via
+// context0 in jseng-duk.c.
+// Well it does go away when the window closes, I suppose that's good enough.
+})();
+
+if(querySelector(".inject").firstChild.style.display != "round") fail(175);
+if(document.body.style.fly) fail(176);
+
+var dataset_test = document.getElementById("tag_with_data_attribute");
+if(dataset_test.dataset.dogFood !== "abc") fail(177);
+</script>
+
+</body>
+</html>
