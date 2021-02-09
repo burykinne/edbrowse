@@ -3,7 +3,7 @@ Version: 3.7.7
 Release: alt1
 
 Summary: ed-alike webbrowser written in C
-License: Free Software
+License: GPL and MPL
 Group: Networking/WWW
 
 Url: http://edbrowse.org/
