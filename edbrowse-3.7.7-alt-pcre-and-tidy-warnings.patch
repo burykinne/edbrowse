@@ -1,0 +1,33 @@
+--- edbrowse/src/buffers.c.orig	2021-02-08 13:19:15.759374198 +0300
++++ edbrowse/src/buffers.c	2021-02-15 13:00:33.192284703 +0300
+@@ -11,7 +11,7 @@
+ 
+ /* If this include file is missing, you need the pcre package,
+  * and the pcre-devel package. */
+-#include <pcre.h>
++#include <pcre/pcre.h>
+ static bool pcre_utf8_error_stop = false;
+ 
+ #include <readline/readline.h>
+--- edbrowse/src/html-tidy.c.orig	2021-02-15 11:44:00.824043747 +0300
++++ edbrowse/src/html-tidy.c	2021-02-15 12:59:58.553182694 +0300
+@@ -126,7 +126,7 @@ void html2nodes(const char *htmltext, bo
+ 	tidyOptSetBool(tdoc, TidyDropEmptyElems, no);
+ 	tidyOptSetBool(tdoc, TidyDropEmptyParas, no);
+ 	tidyOptSetBool(tdoc, TidyLiteralAttribs, yes);
+-	tidyOptSetBool(tdoc, TidyStyleTags, no);
++	tidyOptSetBool(tdoc, TidyPreTags, no);
+ 
+ 	tidySetCharEncoding(tdoc, (cons_utf8 ? "utf8" : "latin1"));
+ 
+--- edbrowse/src/main.c.orig	2021-02-15 11:44:00.825044242 +0300
++++ edbrowse/src/main.c	2021-02-15 13:00:12.900508836 +0300
+@@ -6,7 +6,7 @@
+ #include "eb.h"
+ 
+ #include <pthread.h>
+-#include <pcre.h>
++#include <pcre/pcre.h>
+ #include <signal.h>
+ 
+ /* Define the globals that are declared in eb.h. */

@@ -8,6 +8,7 @@ Group: Networking/WWW
 
 Url: http://edbrowse.org/
 Source0: https://github.com/CMB/edbrowse/archive/v%version.tar.gz#/%name-%version.tar.gz
+Patch0: %name-%version-alt-pcre-and-tidy-warnings.patch
 
 BuildRequires: cmake
 BuildRequires: gcc-c++
@@ -27,7 +28,7 @@ connections and JavaScript.
 
 %prep
 %setup
-sed -i 's/TidyStyleTags/TidyPreTags/' src/html-tidy.c
+%patch0 -p1
 
 %build
 cmake .

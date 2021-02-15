@@ -1,1 +1,2 @@
 tar.gz: edbrowse
+copy: *.patch
